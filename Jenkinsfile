@@ -15,16 +15,14 @@ pipeline {
         }
 
         stage('Stop IIS App Pool') {
-            steps {
-                echo "Stopping IIS App Pool: ${env.APP_POOL_NAME}"
-                powershell '''
-                    Import-Module WebAdministration
-                    Stop-WebAppPool -Name "${env.APP_POOL_NAME}"
-                    Start-Sleep -Seconds 3
-                '''
-            }
-        }
-
+    steps {
+        echo "Stopping IIS App Pool: ${env.APP_POOL_NAME}"
+        powershell '''
+            & $env:SystemRoot\\System32\\inetsrv\\appcmd.exe stop apppool /apppool.name:${env:APP_POOL_NAME}
+            Start-Sleep -Seconds 3
+        '''
+    }
+}
         stage('Build & Publish') {
             steps {
                 echo 'Building and publishing project...'
@@ -35,15 +33,15 @@ pipeline {
             }
         }
 
-        stage('Start IIS App Pool') {
-            steps {
-                echo "Starting IIS App Pool: ${env.APP_POOL_NAME}"
-                powershell '''
-                    Import-Module WebAdministration
-                    Start-WebAppPool -Name "${env.APP_POOL_NAME}"
-                '''
-            }
-        }
+stage('Start IIS App Pool') {
+    steps {
+        echo "Starting IIS App Pool: ${env.APP_POOL_NAME}"
+        powershell '''
+            & $env:SystemRoot\\System32\\inetsrv\\appcmd.exe start apppool /apppool.name:${env:APP_POOL_NAME}
+        '''
+    }
+}
+
     }
 
     post {
