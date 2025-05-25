@@ -55,5 +55,11 @@ namespace BusManagementAPI.Controllers
                 return BadRequest("Route Not Found");
             }
         }
+
+        [HttpPost]
+        public string Test()
+        {
+            return string.Empty;
+        }
     }
 }
