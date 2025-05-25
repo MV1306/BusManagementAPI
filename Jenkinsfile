@@ -4,7 +4,7 @@ pipeline {
     environment {
         APP_POOL_NAME = 'BusManagementAPI'
         PUBLISH_PATH = 'D:\\C# Projects\\BusManagement\\BusManagementAPI\\bin\\Release\\net8.0\\publish'
-        PROJECT_PATH = '"C:\ProgramData\Jenkins\.jenkins\workspace\Bus Management API\BusManagementAPI.csproj"'  // <-- Update this path
+        PROJECT_PATH = '"C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Bus Management API\\BusManagementAPI.csproj"'  // <-- Update this path
     }
 
     stages {
