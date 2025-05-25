@@ -3,54 +3,55 @@ pipeline {
 
     environment {
         APP_POOL_NAME = 'BusManagementAPI'
-        PUBLISH_PATH = 'D:\\C# Projects\\BusManagement\\BusManagementAPI\\bin\\Release\\net8.0\\publish'
-        PROJECT_PATH = '"C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Bus Management API\\BusManagementAPI.csproj"'  // <-- Update this path
+        PROJECT_PATH = "${env.WORKSPACE}\\BusManagementAPI.csproj"
+        PUBLISH_DIR = "D:\\C# Projects\\BusManagement\\BusManagementAPI\\bin\\Release\\net8.0\\publish"
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
         stage('Stop IIS App Pool') {
-    steps {
-        echo "Stopping IIS App Pool: ${env.APP_POOL_NAME}"
-        powershell '''
-            & $env:SystemRoot\\System32\\inetsrv\\appcmd.exe stop apppool /apppool.name:${env:APP_POOL_NAME}
-            Start-Sleep -Seconds 3
-        '''
-    }
-}
-        stage('Build & Publish') {
             steps {
-                echo 'Building and publishing project...'
-                bat """
-                    dotnet build "${env.PROJECT_PATH}" --configuration Release
-                    dotnet publish "${env.PROJECT_PATH}" --configuration Release --output "${env.PUBLISH_PATH}"
+                powershell """
+                    Import-Module WebAdministration
+                    Write-Host "Stopping App Pool: ${APP_POOL_NAME}"
+                    Stop-WebAppPool -Name '${APP_POOL_NAME}'
                 """
             }
         }
 
-stage('Start IIS App Pool') {
-    steps {
-        echo "Starting IIS App Pool: ${env.APP_POOL_NAME}"
-        powershell '''
-            & $env:SystemRoot\\System32\\inetsrv\\appcmd.exe start apppool /apppool.name:${env:APP_POOL_NAME}
-        '''
-    }
-}
+        stage('Build') {
+            steps {
+                powershell """
+                    Write-Host "Building project..."
+                    dotnet build '${PROJECT_PATH}' --configuration Release
+                """
+            }
+        }
 
+        stage('Publish') {
+            steps {
+                powershell """
+                    Write-Host "Publishing project to ${PUBLISH_DIR}"
+                    dotnet publish '${PROJECT_PATH}' --configuration Release --output '${PUBLISH_DIR}'
+                """
+            }
+        }
+
+        stage('Start IIS App Pool') {
+            steps {
+                powershell """
+                    Write-Host "Starting App Pool: ${APP_POOL_NAME}"
+                    Start-WebAppPool -Name '${APP_POOL_NAME}'
+                """
+            }
+        }
     }
 
     post {
-        success {
-            echo '✅ Build and publish successful. App Pool restarted.'
-        }
         failure {
-            echo '❌ Build or publish failed. Please check logs.'
-            // Optionally start the app pool here if you want it running on failure too
+            powershell """
+                Write-Host "Build failed, attempting to start IIS App Pool to restore state."
+                Start-WebAppPool -Name '${APP_POOL_NAME}'
+            """
         }
     }
 }
