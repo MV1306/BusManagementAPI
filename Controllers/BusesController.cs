@@ -600,7 +600,7 @@ namespace BusManagementAPI.Controllers
                 return Ok("No routes found between the given stages.");
             }
 
-            return Ok(matchingRoutes);
+            return Ok(matchingRoutes.OrderBy(x => x.Code));
         }
     }
 }
