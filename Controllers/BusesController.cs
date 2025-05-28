@@ -154,7 +154,7 @@ namespace BusManagementAPI.Controllers
                         StageOrder = stage.StageOrder,
                         DistanceFromStart = (int)stage.DistanceFromStart,
                         Latitude = stage.Latitude,
-                        Longitude = stage.L
+                        Longitude = stage.Longitude
                     }).ToList()
             };
 
