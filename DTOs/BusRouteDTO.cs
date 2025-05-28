@@ -25,6 +25,8 @@ namespace BusManagementAPI.DTOs
         public string StageName { get; set; } = string.Empty;
         public int StageOrder { get; set; } = 0;
         public int DistanceFromStart { get; set; } = 0;
+        public double Latitude { get; set; } = 0;
+        public double Longitude { get; set; } = 0;
     }
 
     public class BusRouteStagesDisplayDTO
