@@ -59,6 +59,8 @@ namespace BusManagementAPI.Controllers
                         StageName = stage.StageName,
                         StageOrder = stage.StageOrder,
                         DistanceFromStart = stage.DistanceFromStart,
+                        Latitude = stage.Latitude,
+                        Longitude = stage.Longitude,
                         IsActive = true,
                         CreatedDate = DateTime.Now
                     };
@@ -150,7 +152,9 @@ namespace BusManagementAPI.Controllers
                     {
                         StageName = stage.StageName,
                         StageOrder = stage.StageOrder,
-                        DistanceFromStart = (int)stage.DistanceFromStart
+                        DistanceFromStart = (int)stage.DistanceFromStart,
+                        Latitude = stage.Latitude,
+                        Longitude = stage.L
                     }).ToList()
             };
 
@@ -179,7 +183,9 @@ namespace BusManagementAPI.Controllers
                     {
                         StageName = stage.StageName,
                         StageOrder = stage.StageOrder,
-                        DistanceFromStart = (int)stage.DistanceFromStart
+                        DistanceFromStart = (int)stage.DistanceFromStart,
+                        Latitude = stage.Latitude,
+                        Longitude = stage.Longitude
                     }).ToList()
             };
 
@@ -266,7 +272,9 @@ namespace BusManagementAPI.Controllers
                     {
                         StageName = stage.StageName,
                         StageOrder = stage.StageOrder,
-                        DistanceFromStart = (int)stage.DistanceFromStart
+                        DistanceFromStart = (int)stage.DistanceFromStart,
+                        Latitude = stage.Latitude,
+                        Longitude = stage.Longitude
                     }).ToList()
             };
 
@@ -311,6 +319,8 @@ namespace BusManagementAPI.Controllers
                         StageName = stage.StageName,
                         StageOrder = stage.StageOrder,
                         DistanceFromStart = stage.DistanceFromStart,
+                        Latitude = stage.Latitude,
+                        Longitude = stage.Longitude,
                         IsActive = true,
                         CreatedDate = DateTime.Now
                     };
@@ -477,9 +487,12 @@ namespace BusManagementAPI.Controllers
                         var endingPoint = row.Cell(3).GetValue<string>().Trim();
                         var stageName = row.Cell(4).GetValue<string>().Trim();
                         var stageOrder = row.Cell(5).GetValue<string>().Trim();
+                        var latitude = row.Cell(6).GetValue<string>().Trim();
+                        var longitude = row.Cell(7).GetValue<string>().Trim();
 
                         if (string.IsNullOrEmpty(routeCode) || string.IsNullOrEmpty(startingPoint)
-                            || string.IsNullOrEmpty(endingPoint) || string.IsNullOrEmpty(stageName) || string.IsNullOrEmpty(stageOrder))
+                            || string.IsNullOrEmpty(endingPoint) || string.IsNullOrEmpty(stageName) || string.IsNullOrEmpty(stageOrder) 
+                            || string.IsNullOrEmpty(latitude) || string.IsNullOrEmpty(longitude))
                             continue;
 
                         if (!routeMap.ContainsKey(routeCode))
@@ -503,6 +516,8 @@ namespace BusManagementAPI.Controllers
                             RouteID = routeMap[routeCode],
                             StageName = stageName,
                             StageOrder = Convert.ToInt32(stageOrder),
+                            Latitude = Convert.ToDouble(latitude),
+                            Longitude = Convert.ToDouble(longitude),
                             IsActive = true,
                             CreatedDate = DateTime.Now
                         };
