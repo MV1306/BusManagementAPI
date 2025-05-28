@@ -511,10 +511,61 @@ namespace BusManagementAPI.Controllers
                     _context.BusRouteStages.AddRange(busRouteStages);
                     _context.SaveChanges();
 
-                    return Ok("Routes and stages imported successfully.");
+                    //return Ok("Routes and stages imported successfully.");
+                    return Ok($"{busRoutes.Count} Routes and {busRouteStages.Count} Stages Imported successfully.");
                 }
             }
         }
+
+        [HttpPost("/ImportStageTranslations")]
+        public async Task<IActionResult> ImportStageTranslations(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return Ok("No file uploaded.");
+
+            var extension = Path.GetExtension(file.FileName);
+            if (extension.ToLower() != ".xlsx")
+                return Ok("Please upload a valid Excel (.xlsx) file.");
+
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                using (var workbook = new XLWorkbook(stream))
+                {
+                    var worksheet = workbook.Worksheet(1); 
+                    var stageTranslations = new List<StageTranslation>();
+
+                    var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
+
+                    foreach (var row in rows)
+                    {
+                        var englishName = row.Cell(1).GetValue<string>().Trim();
+                        var translatedName = row.Cell(2).GetValue<string>().Trim();
+                        var translatedLanguage = row.Cell(3).GetValue<string>().Trim();
+
+                        if (string.IsNullOrEmpty(englishName) && string.IsNullOrEmpty(translatedName) && string.IsNullOrEmpty(translatedLanguage))
+                            continue; 
+
+                        var translation = new StageTranslation
+                        {
+                            TranslationId = Guid.NewGuid(),
+                            EnglishName = englishName,
+                            TranslatedName = translatedName,
+                            TranslatedLanguage = translatedLanguage,
+                            IsActive = true
+                        };
+
+                        stageTranslations.Add(translation);
+                    }
+
+                    _context.StageTranslations.AddRange(stageTranslations);
+                    _context.SaveChanges();
+
+                    return Ok($"{stageTranslations.Count} translations imported successfully.");
+                }
+            }
+        }
+
 
         [HttpGet("/SearchStages/{searchText}")]
         public async Task<IActionResult> SearchStages(string searchText)
