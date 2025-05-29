@@ -1,5 +1,5 @@
 ﻿# Use official .NET SDK image to build the app
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
 # Copy csproj and restore dependencies
