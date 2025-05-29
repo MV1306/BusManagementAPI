@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="DockerFile" />
+    <Compile Remove="DockerFile" />
   </ItemGroup>
 
   <ItemGroup>
