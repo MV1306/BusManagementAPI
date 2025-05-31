@@ -16,6 +16,6 @@ namespace BusManagementAPI.Data
         public DbSet<FareMaster_New> FareMasters_New { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<StageTranslation> StageTranslations { get; set; }
-
+        public DbSet<StageCoordinate> StageCoordinates { get; set; }
     }
 }
