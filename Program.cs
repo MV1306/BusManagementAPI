@@ -31,17 +31,13 @@ var app = builder.Build();
 // For serving static files (if any)
 app.UseStaticFiles();
 
-// Use routing
-app.UseRouting();
-
-// Enable CORS BEFORE authorization
-app.UseCors("AllowSpecificOrigin");
-
-// Swagger middleware
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// Optional: Use HTTPS redirection
+app.UseRouting(); // <-- Add this
+app.UseCors("AllowSpecificOrigin");
+app.UseAuthorization(); // <-- Add this if using [Authorize] or similar
+
 app.UseHttpsRedirection();
 
 // Authorization (add authentication if needed)
