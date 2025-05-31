@@ -17,7 +17,7 @@ namespace BusManagementAPI.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.4")
+                .HasAnnotation("ProductVersion", "7.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -39,12 +39,6 @@ namespace BusManagementAPI.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
-
-                    b.Property<double>("Latitude")
-                        .HasColumnType("float");
-
-                    b.Property<double>("Longitude")
-                        .HasColumnType("float");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
@@ -168,6 +162,30 @@ namespace BusManagementAPI.Migrations
                     b.HasKey("FareID");
 
                     b.ToTable("FareMasters_New");
+                });
+
+            modelBuilder.Entity("BusManagementAPI.Models.StageCoordinate", b =>
+                {
+                    b.Property<Guid>("CoordinateId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("StageName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CoordinateId");
+
+                    b.ToTable("StageCoordinates");
                 });
 
             modelBuilder.Entity("BusManagementAPI.Models.StageTranslation", b =>

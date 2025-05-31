@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusManagementAPI.Migrations
 {
     [DbContext(typeof(BusDbContext))]
-    [Migration("20250518063349_BusRouteCreate32")]
-    partial class BusRouteCreate32
+    [Migration("20250531055250_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.4")
+                .HasAnnotation("ProductVersion", "7.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -165,6 +165,56 @@ namespace BusManagementAPI.Migrations
                     b.HasKey("FareID");
 
                     b.ToTable("FareMasters_New");
+                });
+
+            modelBuilder.Entity("BusManagementAPI.Models.StageCoordinate", b =>
+                {
+                    b.Property<Guid>("CoordinateId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("StageName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CoordinateId");
+
+                    b.ToTable("StageCoordinates");
+                });
+
+            modelBuilder.Entity("BusManagementAPI.Models.StageTranslation", b =>
+                {
+                    b.Property<Guid>("TranslationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EnglishName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("TranslatedLanguage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TranslatedName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("TranslationId");
+
+                    b.ToTable("StageTranslations");
                 });
 
             modelBuilder.Entity("BusManagementAPI.Models.Ticket", b =>
