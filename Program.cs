@@ -24,12 +24,11 @@ var app = builder.Build();
 // Enable middleware
 app.UseStaticFiles();
 
-app.UseCors("AllowSpecificOrigin");
-
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseRouting(); // <-- Add this
+app.UseCors("AllowSpecificOrigin");
 app.UseAuthorization(); // <-- Add this if using [Authorize] or similar
 
 app.UseHttpsRedirection();
