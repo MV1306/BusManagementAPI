@@ -59,8 +59,6 @@ namespace BusManagementAPI.Controllers
                         StageName = stage.StageName,
                         StageOrder = stage.StageOrder,
                         DistanceFromStart = stage.DistanceFromStart,
-                        Latitude = stage.Latitude,
-                        Longitude = stage.Longitude,
                         IsActive = true,
                         CreatedDate = DateTime.Now
                     };
@@ -87,6 +85,8 @@ namespace BusManagementAPI.Controllers
                 .Include(r => r.BusRouteStages) // Include stages
                 .ToListAsync();
 
+            var stageCoordinates = _context.StageCoordinates.ToDictionary(x => x.StageName, x => new { x.Latitude, x.Longitude });
+
             var res = routes.OrderBy(x => x.RouteCode).Select(route => new BusRouteStagesDisplayDTO
             {
                 ID = route.RouteID,
@@ -101,8 +101,8 @@ namespace BusManagementAPI.Controllers
                         StageName = stage.StageName,
                         StageOrder = stage.StageOrder,
                         DistanceFromStart = (int)stage.DistanceFromStart,
-                        Latitude = stage.Latitude,
-                        Longitude = stage.Longitude
+                        Latitude = stageCoordinates.ContainsKey(stage.StageName) ? stageCoordinates[stage.StageName].Latitude : 0,
+                        Longitude = stageCoordinates.ContainsKey(stage.StageName) ? stageCoordinates[stage.StageName].Longitude : 0,
                     }).ToList()
             }).ToList();
 
@@ -139,6 +139,8 @@ namespace BusManagementAPI.Controllers
                 return Ok("No Active Routes found with code - " + RouteCode);
             }
 
+            var stageCoordinates = _context.StageCoordinates.ToDictionary(x => x.StageName, x => new { x.Latitude, x.Longitude });
+
             var res = new BusRouteStagesDisplayDTO
             {
                 ID = route.RouteID,
@@ -153,8 +155,8 @@ namespace BusManagementAPI.Controllers
                         StageName = stage.StageName,
                         StageOrder = stage.StageOrder,
                         DistanceFromStart = (int)stage.DistanceFromStart,
-                        Latitude = stage.Latitude,
-                        Longitude = stage.Longitude
+                        Latitude = stageCoordinates.ContainsKey(stage.StageName) ? stageCoordinates[stage.StageName].Latitude : 0,
+                        Longitude = stageCoordinates.ContainsKey(stage.StageName) ? stageCoordinates[stage.StageName].Longitude : 0,
                     }).ToList()
             };
 
@@ -174,6 +176,8 @@ namespace BusManagementAPI.Controllers
                 return Ok("No Active Routes found with code - " + RouteCode);
             }
 
+            var stageCoordinates = _context.StageCoordinates.ToDictionary(x => x.StageName, x => new { x.Latitude, x.Longitude });
+
             var res = new BusRouteStagesDisplayDTO
             {
                 Stages = route.BusRouteStages
@@ -184,8 +188,8 @@ namespace BusManagementAPI.Controllers
                         StageName = stage.StageName,
                         StageOrder = stage.StageOrder,
                         DistanceFromStart = (int)stage.DistanceFromStart,
-                        Latitude = stage.Latitude,
-                        Longitude = stage.Longitude
+                        Latitude = stageCoordinates.ContainsKey(stage.StageName) ? stageCoordinates[stage.StageName].Latitude : 0,
+                        Longitude = stageCoordinates.ContainsKey(stage.StageName) ? stageCoordinates[stage.StageName].Longitude : 0,
                     }).ToList()
             };
 
@@ -259,6 +263,8 @@ namespace BusManagementAPI.Controllers
                 return Ok("No Active Routes found with id - " + Id);
             }
 
+            var stageCoordinates = _context.StageCoordinates.ToDictionary(x => x.StageName, x => new { x.Latitude, x.Longitude });
+
             var res = new BusRouteStagesDisplayDTO
             {
                 ID = route.RouteID,
@@ -273,8 +279,8 @@ namespace BusManagementAPI.Controllers
                         StageName = stage.StageName,
                         StageOrder = stage.StageOrder,
                         DistanceFromStart = (int)stage.DistanceFromStart,
-                        Latitude = stage.Latitude,
-                        Longitude = stage.Longitude
+                        Latitude = stageCoordinates.ContainsKey(stage.StageName) ? stageCoordinates[stage.StageName].Latitude : 0,
+                        Longitude = stageCoordinates.ContainsKey(stage.StageName) ? stageCoordinates[stage.StageName].Longitude : 0
                     }).ToList()
             };
 
@@ -319,8 +325,6 @@ namespace BusManagementAPI.Controllers
                         StageName = stage.StageName,
                         StageOrder = stage.StageOrder,
                         DistanceFromStart = stage.DistanceFromStart,
-                        Latitude = stage.Latitude,
-                        Longitude = stage.Longitude,
                         IsActive = true,
                         CreatedDate = DateTime.Now
                     };
@@ -487,12 +491,10 @@ namespace BusManagementAPI.Controllers
                         var endingPoint = row.Cell(3).GetValue<string>().Trim();
                         var stageName = row.Cell(4).GetValue<string>().Trim();
                         var stageOrder = row.Cell(5).GetValue<string>().Trim();
-                        var latitude = row.Cell(6).GetValue<string>().Trim();
-                        var longitude = row.Cell(7).GetValue<string>().Trim();
+
 
                         if (string.IsNullOrEmpty(routeCode) || string.IsNullOrEmpty(startingPoint)
-                            || string.IsNullOrEmpty(endingPoint) || string.IsNullOrEmpty(stageName) || string.IsNullOrEmpty(stageOrder) 
-                            || string.IsNullOrEmpty(latitude) || string.IsNullOrEmpty(longitude))
+                            || string.IsNullOrEmpty(endingPoint) || string.IsNullOrEmpty(stageName) || string.IsNullOrEmpty(stageOrder))
                             continue;
 
                         if (!routeMap.ContainsKey(routeCode))
@@ -516,8 +518,6 @@ namespace BusManagementAPI.Controllers
                             RouteID = routeMap[routeCode],
                             StageName = stageName,
                             StageOrder = Convert.ToInt32(stageOrder),
-                            Latitude = Convert.ToDouble(latitude),
-                            Longitude = Convert.ToDouble(longitude),
                             IsActive = true,
                             CreatedDate = DateTime.Now
                         };
@@ -583,6 +583,54 @@ namespace BusManagementAPI.Controllers
             }
         }
 
+        [HttpPost("/ImportStageCoordinates")]
+        public async Task<IActionResult> ImportStageCoordinates(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return Ok("No file uploaded.");
+
+            var extension = Path.GetExtension(file.FileName);
+            if (extension.ToLower() != ".xlsx")
+                return Ok("Please upload a valid Excel (.xlsx) file.");
+
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                using (var workbook = new XLWorkbook(stream))
+                {
+                    var worksheet = workbook.Worksheet(1);
+                    var stageCoordinates = new List<StageCoordinate>();
+
+                    var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
+
+                    foreach (var row in rows)
+                    {
+                        var stageName = row.Cell(1).GetValue<string>().Trim();
+                        var latitude = row.Cell(3).GetValue<string>().Trim();
+                        var longitude = row.Cell(4).GetValue<string>().Trim();
+
+                        if (string.IsNullOrEmpty(stageName) && string.IsNullOrEmpty(latitude) && string.IsNullOrEmpty(longitude))
+                            continue;
+
+                        var coordinate = new StageCoordinate
+                        {
+                            CoordinateId = Guid.NewGuid(),
+                            StageName = stageName,
+                            Latitude = Convert.ToDouble(latitude),
+                            Longitude = Convert.ToDouble(longitude),
+                            IsActive = true
+                        };
+
+                        stageCoordinates.Add(coordinate);
+                    }
+
+                    _context.StageCoordinates.AddRange(stageCoordinates);
+                    _context.SaveChanges();
+
+                    return Ok($"{stageCoordinates.Count} coordinates imported successfully.");
+                }
+            }
+        }
 
         [HttpGet("/SearchStages/{searchText}")]
         public async Task<IActionResult> SearchStages(string searchText)

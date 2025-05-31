@@ -24,8 +24,8 @@ namespace BusManagementAPI.Models
         public DateTime? ModifiedDate { get; set; }
         public DateTime? DeletedDate { get; set; }
 
-        public double Latitude { get; set; } = 0;
-        public double Longitude { get; set; } = 0;
+        //public double Latitude { get; set; } = 0;
+        //public double Longitude { get; set; } = 0;
 
         // Navigation Property
         public Busroute? Busroute { get; set; }
