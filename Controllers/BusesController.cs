@@ -6,6 +6,7 @@ using BusManagementAPI.Data;
 using BusManagementAPI.DTOs;
 using BusManagementAPI.Models;
 using ClosedXML.Excel;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
@@ -462,6 +463,7 @@ namespace BusManagementAPI.Controllers
         }
 
         [HttpPost("/ImportBusRoutes")]
+        [EnableCors("AllowSpecificOrigin")]
         public async Task<IActionResult> ImportBusRoutes(IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -535,6 +537,7 @@ namespace BusManagementAPI.Controllers
         }
 
         [HttpPost("/ImportStageTranslations")]
+        [EnableCors("AllowSpecificOrigin")]
         public async Task<IActionResult> ImportStageTranslations(IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -584,6 +587,7 @@ namespace BusManagementAPI.Controllers
         }
 
         [HttpPost("/ImportStageCoordinates")]
+        [EnableCors("AllowSpecificOrigin")]
         public async Task<IActionResult> ImportStageCoordinates(IFormFile file)
         {
             if (file == null || file.Length == 0)
