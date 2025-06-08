@@ -660,6 +660,30 @@ namespace BusManagementAPI.Controllers
             return Ok(matchingStages);
         }
 
+        [HttpGet("/SearchRoutes/{searchText}")]
+        public async Task<IActionResult> SearchRoutes(string searchText)
+        {
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                return BadRequest("Search text is required.");
+            }
+
+            // Fetch distinct stage names containing the search text (case insensitive)
+            var matchingStages = await _context.BusRoutes
+                .Where(s => s.IsActive && s.RouteCode.ToLower().Contains(searchText.ToLower()))
+                .Select(s => s.RouteCode)
+                .Distinct()
+                .OrderBy(s => s)
+                .ToListAsync();
+
+            if (!matchingStages.Any())
+            {
+                return Ok("No stages found matching the search text.");
+            }
+
+            return Ok(matchingStages);
+        }
+
         [HttpGet("/FindRoutesBetweenStages/{fromStage}/{toStage}")]
         public async Task<IActionResult> FindRoutesBetweenStages(string fromStage, string toStage)
         {
