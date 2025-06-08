@@ -21,104 +21,104 @@ namespace BusManagementAPI.Controllers
             _context = context;
         }
 
-        //// GET: api/Tickets - Get all tickets
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<TicketResponseDTO>>> GetTickets()
-        //{
-        //    var tickets = await _context.Tickets
-        //        .Include(t => t.BusRoute)
-        //        .Select(t => new TicketResponseDTO
-        //        {
-        //            TicketID = t.TicketID,
-        //            RouteCode = t.BusRoute.RouteCode,
-        //            FromStage = t.FromStage,
-        //            ToStage = t.ToStage,
-        //            BusType = t.BusType,
-        //            StagesTravelled = t.StagesTravelled,
-        //            Fare = t.Fare,
-        //            UserName = t.UserName,
-        //            MobileNo = t.MobileNo,
-        //            Email = t.Email,
-        //            IsActive = t.IsActive,
-        //            IsRedeemed = t.IsRedeemed,
-        //            BookingDate = t.BookingDate,
-        //            RedeemedDate = t.RedeemedDate
-        //        })
-        //        .ToListAsync();
+        // GET: api/Tickets - Get all tickets
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<TicketResponseDTO>>> GetTickets()
+        {
+            var tickets = await _context.Tickets
+                .Include(t => t.BusRoute)
+                .Select(t => new TicketResponseDTO
+                {
+                    TicketID = t.TicketID,
+                    RouteCode = t.BusRoute.RouteCode,
+                    FromStage = t.FromStage,
+                    ToStage = t.ToStage,
+                    BusType = t.BusType,
+                    StagesTravelled = t.StagesTravelled,
+                    Fare = t.Fare,
+                    UserName = t.UserName,
+                    MobileNo = t.MobileNo,
+                    Email = t.Email,
+                    IsActive = t.IsActive,
+                    IsRedeemed = t.IsRedeemed,
+                    BookingDate = t.BookingDate,
+                    RedeemedDate = t.RedeemedDate
+                })
+                .ToListAsync();
 
-        //    return Ok(tickets);
-        //}
+            return Ok(tickets);
+        }
 
-        //// GET: api/Tickets/{id} - Get ticket by ID
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<TicketResponseDTO>> GetTicket(Guid id)
-        //{
-        //    var ticket = await _context.Tickets
-        //        .Include(t => t.BusRoute)
-        //        .Where(t => t.TicketID == id)
-        //        .Select(t => new TicketResponseDTO
-        //        {
-        //            TicketID = t.TicketID,
-        //            RouteCode = t.BusRoute.RouteCode,
-        //            FromStage = t.FromStage,
-        //            ToStage = t.ToStage,
-        //            BusType = t.BusType,
-        //            StagesTravelled = t.StagesTravelled,
-        //            Fare = t.Fare,
-        //            UserName = t.UserName,
-        //            MobileNo = t.MobileNo,
-        //            Email = t.Email,
-        //            IsActive = t.IsActive,
-        //            IsRedeemed = t.IsRedeemed,
-        //            BookingDate = t.BookingDate,
-        //            RedeemedDate = t.RedeemedDate
-        //        })
-        //        .FirstOrDefaultAsync();
+        // GET: api/Tickets/{id} - Get ticket by ID
+        [HttpGet("{id}")]
+        public async Task<ActionResult<TicketResponseDTO>> GetTicket(Guid id)
+        {
+            var ticket = await _context.Tickets
+                .Include(t => t.BusRoute)
+                .Where(t => t.TicketID == id)
+                .Select(t => new TicketResponseDTO
+                {
+                    TicketID = t.TicketID,
+                    RouteCode = t.BusRoute.RouteCode,
+                    FromStage = t.FromStage,
+                    ToStage = t.ToStage,
+                    BusType = t.BusType,
+                    StagesTravelled = t.StagesTravelled,
+                    Fare = t.Fare,
+                    UserName = t.UserName,
+                    MobileNo = t.MobileNo,
+                    Email = t.Email,
+                    IsActive = t.IsActive,
+                    IsRedeemed = t.IsRedeemed,
+                    BookingDate = t.BookingDate,
+                    RedeemedDate = t.RedeemedDate
+                })
+                .FirstOrDefaultAsync();
 
-        //    if (ticket == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (ticket == null)
+            {
+                return NotFound();
+            }
 
-        //    return ticket;
-        //}
+            return ticket;
+        }
 
-        // GET: api/Tickets/mobile/{mobileNo} - Get tickets by mobile number
-        //[HttpGet("mobile/{mobileNo}")]
-        //public async Task<ActionResult<IEnumerable<TicketResponseDTO>>> GetTicketsByMobile(string mobileNo)
-        //{
-        //    var tickets = await _context.Tickets
-        //        .Include(t => t.BusRoute)
-        //        .Where(t => t.MobileNo == mobileNo)
-        //        .Select(t => new TicketResponseDTO
-        //        {
-        //            TicketID = t.TicketID,
-        //            RouteCode = t.BusRoute.RouteCode,
-        //            FromStage = t.FromStage,
-        //            ToStage = t.ToStage,
-        //            BusType = t.BusType,
-        //            StagesTravelled = t.StagesTravelled,
-        //            Fare = t.Fare,
-        //            UserName = t.UserName,
-        //            MobileNo = t.MobileNo,
-        //            Email = t.Email,
-        //            IsActive = t.IsActive,
-        //            IsRedeemed = t.IsRedeemed,
-        //            BookingDate = t.BookingDate,
-        //            RedeemedDate = t.RedeemedDate
-        //        })
-        //        .ToListAsync();
+        //GET: api/Tickets/mobile/{mobileNo}
+       [HttpGet("mobile/{mobileNo}")]
+        public async Task<ActionResult<IEnumerable<TicketResponseDTO>>> GetTicketsByMobile(string mobileNo)
+    {
+        var tickets = await _context.Tickets
+            .Include(t => t.BusRoute)
+            .Where(t => t.MobileNo == mobileNo)
+            .Select(t => new TicketResponseDTO
+            {
+                TicketID = t.TicketID,
+                RouteCode = t.BusRoute.RouteCode,
+                FromStage = t.FromStage,
+                ToStage = t.ToStage,
+                BusType = t.BusType,
+                StagesTravelled = t.StagesTravelled,
+                Fare = t.Fare,
+                UserName = t.UserName,
+                MobileNo = t.MobileNo,
+                Email = t.Email,
+                IsActive = t.IsActive,
+                IsRedeemed = t.IsRedeemed,
+                BookingDate = t.BookingDate,
+                RedeemedDate = t.RedeemedDate
+            })
+            .ToListAsync();
 
-        //    if (!tickets.Any())
-        //    {
-        //        return NotFound("No tickets found for this mobile number.");
-        //    }
+        if (!tickets.Any())
+        {
+            return NotFound("No tickets found for this mobile number.");
+        }
 
-        //    return Ok(tickets);
-        //}
+        return Ok(tickets);
+    }
 
-        // POST: api/Tickets - Purchase a new ticket
-        [HttpPost]
+    // POST: api/Tickets - Purchase a new ticket
+    [HttpPost]
         public async Task<ActionResult<TicketResponseDTO>> PurchaseTicket([FromBody] TicketResponseDTO ticketDto)
         {
             // Validate the route exists
@@ -183,7 +183,7 @@ namespace BusManagementAPI.Controllers
             //    })
             //    .FirstOrDefaultAsync();
 
-            return Ok("Booking Successful");
+            return Ok("Booking Successful. Booking ID - " + ticket.TicketID);
         }
 
         // PUT: api/Tickets/{id}/redeem - Redeem a ticket
