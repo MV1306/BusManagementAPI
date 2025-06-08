@@ -4,7 +4,7 @@ pipeline {
     environment {
         APP_POOL_NAME = 'BusManagementAPI'
         PROJECT_PATH = "${env.WORKSPACE}\\BusManagementAPI.csproj"
-        PUBLISH_DIR = "D:\\C# Projects\\BusManagement\\BusManagementAPI\\bin\\Release\\net8.0\\publish"
+        PUBLISH_DIR = "D:\\C# Projects\\BusManagement\\BusManagementAPI\\bin\\Release\\net7.0\\publish"
     }
 
     stages {
