@@ -84,42 +84,42 @@ namespace BusManagementAPI.Controllers
         }
 
         //GET: api/Tickets/mobile/{mobileNo}
-       [HttpGet("mobile/{mobileNo}")]
+        [HttpGet("mobile/{mobileNo}")]
         public async Task<ActionResult<IEnumerable<TicketResponseDTO>>> GetTicketsByMobile(string mobileNo)
-    {
-        var tickets = await _context.Tickets
-            .Include(t => t.BusRoute)
-            .Where(t => t.MobileNo == mobileNo)
-            .Select(t => new TicketResponseDTO
-            {
-                TicketID = t.TicketID,
-                RouteCode = t.BusRoute.RouteCode,
-                FromStage = t.FromStage,
-                ToStage = t.ToStage,
-                BusType = t.BusType,
-                StagesTravelled = t.StagesTravelled,
-                Fare = t.Fare,
-                UserName = t.UserName,
-                MobileNo = t.MobileNo,
-                Email = t.Email,
-                IsActive = t.IsActive,
-                IsRedeemed = t.IsRedeemed,
-                BookingDate = t.BookingDate,
-                RedeemedDate = t.RedeemedDate
-            })
-            .ToListAsync();
-
-        if (!tickets.Any())
         {
-            return NotFound("No tickets found for this mobile number.");
+            var tickets = await _context.Tickets
+                .Include(t => t.BusRoute)
+                .Where(t => t.MobileNo == mobileNo)
+                .Select(t => new TicketResponseDTO
+                {
+                    TicketID = t.TicketID,
+                    RouteCode = t.BusRoute.RouteCode,
+                    FromStage = t.FromStage,
+                    ToStage = t.ToStage,
+                    BusType = t.BusType,
+                    StagesTravelled = t.StagesTravelled,
+                    Fare = t.Fare,
+                    UserName = t.UserName,
+                    MobileNo = t.MobileNo,
+                    Email = t.Email,
+                    IsActive = t.IsActive,
+                    IsRedeemed = t.IsRedeemed,
+                    BookingDate = t.BookingDate,
+                    RedeemedDate = t.RedeemedDate
+                })
+                .ToListAsync();
+
+            if (!tickets.Any())
+            {
+                return NotFound("No tickets found for this mobile number.");
+            }
+
+            return Ok(tickets);
         }
 
-        return Ok(tickets);
-    }
-
-    // POST: api/Tickets - Purchase a new ticket
-    [HttpPost]
-        public async Task<ActionResult<TicketResponseDTO>> PurchaseTicket([FromBody] TicketResponseDTO ticketDto)
+        // POST: api/Tickets - Purchase a new ticket
+        [HttpPost]
+        public async Task<ActionResult<TicketResponseDTO>> PurchaseTicket([FromBody] TicketRequestDTO ticketDto)
         {
             // Validate the route exists
             var route = await _context.BusRoutes.Include(x => x.BusRouteStages).FirstOrDefaultAsync(r => r.RouteCode == ticketDto.RouteCode);
@@ -150,11 +150,10 @@ namespace BusManagementAPI.Controllers
                 Fare = fare,
                 UserName = ticketDto.UserName,
                 MobileNo = ticketDto.MobileNo,
-                Email = "",
+                Email = ticketDto.Email,
                 IsActive = true,
                 IsRedeemed = false,
-                BookingDate = DateTime.Now,
-                RedeemedDate = null
+                BookingDate = DateTime.Now
             };
 
             _context.Tickets.Add(ticket);
