@@ -4,6 +4,7 @@ using BusManagementAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusManagementAPI.Migrations
 {
     [DbContext(typeof(BusDbContext))]
-    partial class BusDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250609165336_UpdateTicket2")]
+    partial class UpdateTicket2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -214,72 +217,6 @@ namespace BusManagementAPI.Migrations
                     b.ToTable("StageTranslations");
                 });
 
-            modelBuilder.Entity("BusManagementAPI.Models.Ticket", b =>
-                {
-                    b.Property<Guid>("TicketID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("BaseFare")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<DateTime>("BookingDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("BusType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FromStage")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsRedeemed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("MobileNo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Passengers")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("RedeemedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("RouteID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("StagesTravelled")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ToStage")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("TotalFare")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("TicketID");
-
-                    b.HasIndex("RouteID");
-
-                    b.ToTable("Tickets");
-                });
-
             modelBuilder.Entity("BusManagementAPI.Models.BusRouteStage", b =>
                 {
                     b.HasOne("BusManagementAPI.Models.Busroute", "Busroute")
@@ -289,17 +226,6 @@ namespace BusManagementAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Busroute");
-                });
-
-            modelBuilder.Entity("BusManagementAPI.Models.Ticket", b =>
-                {
-                    b.HasOne("BusManagementAPI.Models.Busroute", "BusRoute")
-                        .WithMany()
-                        .HasForeignKey("RouteID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BusRoute");
                 });
 
             modelBuilder.Entity("BusManagementAPI.Models.Busroute", b =>
