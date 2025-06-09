@@ -29,7 +29,13 @@ namespace BusManagementAPI.Models
 
         [Precision(10, 2)]
         [Range(0, double.MaxValue)]
-        public decimal Fare { get; set; }
+        public decimal BaseFare { get; set; }
+
+        public int Passengers { get; set; }
+
+        [Precision(10, 2)]
+        [Range(0, double.MaxValue)]
+        public decimal TotalFare { get; set; }
 
         [Required]
         public string UserName { get; set; }
