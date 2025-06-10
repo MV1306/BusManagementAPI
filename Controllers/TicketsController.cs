@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace BusManagementAPI.Controllers
@@ -15,6 +16,8 @@ namespace BusManagementAPI.Controllers
     public class TicketsController : ControllerBase
     {
         private readonly BusDbContext _context;
+        private static readonly char[] chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
+        private static readonly Random random = new Random();
 
         public TicketsController(BusDbContext context)
         {
@@ -138,10 +141,13 @@ namespace BusManagementAPI.Controllers
             // Calculate fare based on stages travelled (you might have your own logic here)
             decimal fare = CalculateFare(stageDifference, ticketDto.BusType);
 
+            string BookingId = GenerateAlphanumericCode();            
+
             // Create new ticket
             var ticket = new Ticket
             {
                 TicketID = Guid.NewGuid(),
+                BookingRefID = BookingId,
                 RouteID = route.RouteID,
                 FromStage = ticketDto.FromStage,
                 ToStage = ticketDto.ToStage,
@@ -161,37 +167,14 @@ namespace BusManagementAPI.Controllers
             _context.Tickets.Add(ticket);
             await _context.SaveChangesAsync();
 
-            // Return the created ticket with additional info
-            //var createdTicket = await _context.Tickets
-            //    .Include(t => t.BusRoute)
-            //    .Where(t => t.TicketID == ticket.TicketID)
-            //    .Select(t => new TicketResponseDTO
-            //    {
-            //        TicketID = t.TicketID,
-            //        RouteCode = t.BusRoute.RouteCode,
-            //        FromStage = t.FromStage,
-            //        ToStage = t.ToStage,
-            //        BusType = t.BusType,
-            //        StagesTravelled = t.StagesTravelled,
-            //        Fare = t.Fare,
-            //        UserName = t.UserName,
-            //        MobileNo = t.MobileNo,
-            //        Email = t.Email,
-            //        IsActive = t.IsActive,
-            //        IsRedeemed = t.IsRedeemed,
-            //        BookingDate = t.BookingDate,
-            //        RedeemedDate = t.RedeemedDate
-            //    })
-            //    .FirstOrDefaultAsync();
-
-            return Ok("Booking Successful. Booking ID - " + ticket.TicketID);
+            return Ok("Booking Successful. Booking Reference ID - " + ticket.BookingRefID);
         }
 
         // PUT: api/Tickets/{id}/redeem - Redeem a ticket
-        [HttpPut("/RedeemTicket/{id}")]
-        public async Task<IActionResult> RedeemTicket(Guid id)
+        [HttpPut("/RedeemTicket/{refID}")]
+        public async Task<IActionResult> RedeemTicket(string refID)
         {
-            var ticket = await _context.Tickets.FindAsync(id);
+            var ticket = await _context.Tickets.Where(x => x.BookingRefID == refID).FirstOrDefaultAsync();
             if (ticket == null)
             {
                 return NotFound();
@@ -199,19 +182,24 @@ namespace BusManagementAPI.Controllers
 
             if (!ticket.IsActive)
             {
-                return BadRequest("Ticket is not active.");
+                return Ok("Ticket is not active.");
             }
 
             if (ticket.IsRedeemed)
             {
-                return BadRequest("Ticket is already redeemed.");
+                return Ok("Ticket is already redeemed.");
+            }
+
+            if (ticket.IsCancelled)
+            {
+                return Ok("Ticket is cancelled.");
             }
 
             ticket.IsRedeemed = true;
             ticket.RedeemedDate = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Ticket has been successfully redeemed.");
         }
 
         // PUT: api/Tickets/{id}/cancel - Cancel a ticket
@@ -226,18 +214,23 @@ namespace BusManagementAPI.Controllers
 
             if (!ticket.IsActive)
             {
-                return BadRequest("Ticket is already cancelled.");
+                return Ok("Ticket is already cancelled.");
             }
 
             if (ticket.IsRedeemed)
             {
-                return BadRequest("Cannot cancel a redeemed ticket.");
+                return Ok("Cannot cancel a redeemed ticket.");
             }
 
-            ticket.IsActive = false;
+            if (ticket.IsCancelled)
+            {
+                return Ok("Ticket is already cancelled.");
+            }
+
+            ticket.IsCancelled = true;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Ticket Cancelled Successfully");
         }
 
         private decimal CalculateFare(int stagesTravelled, string busType)
@@ -246,6 +239,16 @@ namespace BusManagementAPI.Controllers
                 .Select(x => x.StageFare).FirstOrDefault();
 
             return fare;
+        }
+
+        public static string GenerateAlphanumericCode()
+        {
+            var sb = new StringBuilder(10);
+            for (int i = 0; i < 10; i++)
+            {
+                sb.Append(chars[random.Next(chars.Length)]);
+            }
+            return sb.ToString();
         }
     }
 }
