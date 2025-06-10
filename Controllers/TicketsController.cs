@@ -175,7 +175,7 @@ namespace BusManagementAPI.Controllers
 
             if (!string.IsNullOrEmpty(ticketDto.Email))
             {
-                var subject = $"Your Bus Ticket Booking Confirmation - Booking ID: {ticket.BookingRefID}";
+                var subject = $"Booking ID: {ticket.BookingRefID} - Bus Ticket Booking Confirmation";
                 var emailBody = $@"
                         <!DOCTYPE html>
                         <html lang='en'>
