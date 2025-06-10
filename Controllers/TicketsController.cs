@@ -22,7 +22,7 @@ namespace BusManagementAPI.Controllers
         }
 
         // GET: api/Tickets - Get all tickets
-        [HttpGet]
+        [HttpGet("/GetAllTickets")]
         public async Task<ActionResult<IEnumerable<TicketResponseDTO>>> GetTickets()
         {
             var tickets = await _context.Tickets
@@ -50,7 +50,7 @@ namespace BusManagementAPI.Controllers
         }
 
         // GET: api/Tickets/{id} - Get ticket by ID
-        [HttpGet("{id}")]
+        [HttpGet("/GetTicketByID/{id}")]
         public async Task<ActionResult<TicketResponseDTO>> GetTicket(Guid id)
         {
             var ticket = await _context.Tickets
@@ -84,7 +84,7 @@ namespace BusManagementAPI.Controllers
         }
 
         //GET: api/Tickets/mobile/{mobileNo}
-        [HttpGet("mobile/{mobileNo}")]
+        [HttpGet("/GetTicketByMobileNo/{mobileNo}")]
         public async Task<ActionResult<IEnumerable<TicketResponseDTO>>> GetTicketsByMobile(string mobileNo)
         {
             var tickets = await _context.Tickets
@@ -118,7 +118,7 @@ namespace BusManagementAPI.Controllers
         }
 
         // POST: api/Tickets - Purchase a new ticket
-        [HttpPost]
+        [HttpPost("/BuyTicket")]
         public async Task<ActionResult<TicketResponseDTO>> PurchaseTicket([FromBody] TicketRequestDTO ticketDto)
         {
             // Validate the route exists
@@ -188,7 +188,7 @@ namespace BusManagementAPI.Controllers
         }
 
         // PUT: api/Tickets/{id}/redeem - Redeem a ticket
-        [HttpPut("{id}/redeem")]
+        [HttpPut("/RedeemTicket/{id}")]
         public async Task<IActionResult> RedeemTicket(Guid id)
         {
             var ticket = await _context.Tickets.FindAsync(id);
@@ -215,7 +215,7 @@ namespace BusManagementAPI.Controllers
         }
 
         // PUT: api/Tickets/{id}/cancel - Cancel a ticket
-        [HttpPut("{id}/cancel")]
+        [HttpPut("/CancelTicket/{id}")]
         public async Task<IActionResult> CancelTicket(Guid id)
         {
             var ticket = await _context.Tickets.FindAsync(id);
