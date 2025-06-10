@@ -1,6 +1,7 @@
 ﻿using BusManagementAPI.Data;
 using BusManagementAPI.DTOs;
 using BusManagementAPI.Models;
+using BusManagementAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -16,12 +17,14 @@ namespace BusManagementAPI.Controllers
     public class TicketsController : ControllerBase
     {
         private readonly BusDbContext _context;
+        private readonly IEmailService _emailService;
         private static readonly char[] chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
         private static readonly Random random = new Random();
 
-        public TicketsController(BusDbContext context)
+        public TicketsController(BusDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         // GET: api/Tickets - Get all tickets
@@ -141,7 +144,7 @@ namespace BusManagementAPI.Controllers
             // Calculate fare based on stages travelled (you might have your own logic here)
             decimal fare = CalculateFare(stageDifference, ticketDto.BusType);
 
-            string BookingId = GenerateAlphanumericCode();            
+            string BookingId = GenerateAlphanumericCode();
 
             // Create new ticket
             var ticket = new Ticket
@@ -167,6 +170,61 @@ namespace BusManagementAPI.Controllers
             _context.Tickets.Add(ticket);
             await _context.SaveChangesAsync();
 
+            if (!string.IsNullOrEmpty(ticketDto.Email))
+            {
+                var subject = $"Your Bus Ticket Booking Confirmation - Booking ID: {ticket.BookingRefID}";
+                var emailBody = $@"
+                        <!DOCTYPE html>
+                        <html lang='en'>
+                        <head>
+                            <meta charset='UTF-8'>
+                            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                            <title>Bus Ticket Confirmation</title>
+                            <style>
+                                body {{ font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; }}
+                                .container {{ max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }}
+                                .header {{ background-color: #4361ee; color: white; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; }}
+                                .content {{ padding: 20px 0; }}
+                                .footer {{ margin-top: 20px; font-size: 0.9em; color: #777; text-align: center; border-top: 1px solid #eee; padding-top: 10px; }}
+                                .detail-row {{ display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #eee; }}
+                                .detail-row:last-child {{ border-bottom: none; }}
+                                strong {{ color: #000; }}
+                                .fare-total {{ font-size: 1.2em; font-weight: bold; text-align: right; margin-top: 15px; padding-top: 10px; border-top: 2px solid #4361ee; }}
+                            </style>
+                        </head>
+                        <body>
+                            <div class='container'>
+                                <div class='header'>
+                                    <h2>Bus Ticket Booking Confirmation</h2>
+                                </div>
+                                <div class='content'>
+                                    <p>Dear {ticketDto.UserName ?? "Passenger"},</p>
+                                    <p>Your bus ticket booking has been successfully confirmed!</p>
+                                    <p>Here are your booking details:</p>
+                                    <div class='detail-row'><span>Booking Reference ID:</span> <strong>{ticket.BookingRefID}</strong></div>
+                                    <div class='detail-row'><span>Route:</span> <strong>{ticketDto.RouteCode}</strong></div>
+                                    <div class='detail-row'><span>From:</span> <strong>{ticketDto.FromStage}</strong></div>
+                                    <div class='detail-row'><span>To:</span> <strong>{ticketDto.ToStage}</strong></div>
+                                    <div class='detail-row'><span>Bus Type:</span> <strong>{ticketDto.BusType}</strong></div>
+                                    <div class='detail-row'><span>Number of Passengers:</span> <strong>{ticketDto.Passengers}</strong></div>
+                                    <div class='detail-row'><span>Passenger Name:</span> <strong>{ticketDto.UserName}</strong></div>
+                                    <div class='detail-row'><span>Mobile Number:</span> <strong>{ticketDto.MobileNo}</strong></div>
+                                    {(!string.IsNullOrEmpty(ticketDto.Email) ? $"<div class='detail-row'><span>Email Address:</span> <strong>{ticketDto.Email}</strong></div>" : "")}
+
+                                    <p class='fare-total'>Total Paid: ₹{ticket.TotalFare:F2}</p>
+
+                                    <p>Please keep this email for your reference. We wish you a pleasant journey!</p>
+                                    <p>Sincerely,<br>The Bus Booking Team</p>
+                                </div>
+                                <div class='footer'>
+                                    This is an automated email, please do not reply.
+                                </div>
+                            </div>
+                        </body>
+                        </html>";
+
+                await _emailService.SendEmailAsync(ticketDto.Email, subject, emailBody);
+            }
             return Ok("Booking Successful. Booking Reference ID - " + ticket.BookingRefID);
         }
 
