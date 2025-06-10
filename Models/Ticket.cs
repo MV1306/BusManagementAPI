@@ -10,6 +10,9 @@ namespace BusManagementAPI.Models
         public Guid TicketID { get; set; }
 
         [Required]
+        public string BookingRefID { get; set; }
+
+        [Required]
         public Guid RouteID { get; set; }
 
         [ForeignKey("RouteID")]
@@ -49,6 +52,8 @@ namespace BusManagementAPI.Models
         public bool IsActive { get; set; } = true;
 
         public bool IsRedeemed { get; set; } = false;
+
+        public bool IsCancelled { get; set; } = false;
 
         public DateTime BookingDate { get; set; } = DateTime.UtcNow;
 
