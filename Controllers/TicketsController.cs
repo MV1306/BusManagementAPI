@@ -65,12 +65,15 @@ namespace BusManagementAPI.Controllers
                 .Select(t => new TicketResponseDTO
                 {
                     TicketID = t.TicketID,
+                    BookingRefId = t.BookingRefID,
                     RouteCode = t.BusRoute.RouteCode,
                     FromStage = t.FromStage,
                     ToStage = t.ToStage,
                     BusType = t.BusType,
                     StagesTravelled = t.StagesTravelled,
                     Fare = t.BaseFare,
+                    Passengers = t.Passengers,
+                    TotalFare = t.TotalFare,
                     UserName = t.UserName,
                     MobileNo = t.MobileNo,
                     Email = t.Email,
