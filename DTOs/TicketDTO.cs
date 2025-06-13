@@ -17,6 +17,7 @@
         public string Email { get; set; }
         public bool IsActive { get; set; }
         public bool IsRedeemed { get; set; }
+        public bool IsCancelled { get; set; }
         public DateTime BookingDate { get; set; }
         public DateTime? RedeemedDate { get; set; }
     }
