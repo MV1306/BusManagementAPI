@@ -20,6 +20,7 @@
         public bool IsCancelled { get; set; }
         public DateTime BookingDate { get; set; }
         public DateTime? RedeemedDate { get; set; }
+        public string Status { get; set; }
     }
 
     public class GroupedTicketsResponseDTO
