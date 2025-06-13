@@ -116,6 +116,7 @@ namespace BusManagementAPI.Controllers
                     Email = t.Email,
                     IsActive = t.IsActive,
                     IsRedeemed = t.IsRedeemed,
+                    IsCancelled = t.IsCancelled,
                     BookingDate = t.BookingDate,
                     RedeemedDate = t.RedeemedDate
                 })
@@ -141,6 +142,7 @@ namespace BusManagementAPI.Controllers
                     Email = t.Email,
                     IsActive = t.IsActive,
                     IsRedeemed = t.IsRedeemed,
+                    IsCancelled = t.IsCancelled,
                     BookingDate = t.BookingDate,
                     RedeemedDate = t.RedeemedDate
                 })
@@ -166,6 +168,7 @@ namespace BusManagementAPI.Controllers
                     Email = t.Email,
                     IsActive = t.IsActive,
                     IsRedeemed = t.IsRedeemed,
+                    IsCancelled = t.IsCancelled,
                     BookingDate = t.BookingDate,
                     RedeemedDate = t.RedeemedDate
                 })
