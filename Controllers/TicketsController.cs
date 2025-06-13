@@ -96,9 +96,9 @@ namespace BusManagementAPI.Controllers
         [HttpGet("/GetTicketByMobileNo/{mobileNo}")]
         public async Task<ActionResult<IEnumerable<TicketResponseDTO>>> GetTicketsByMobile(string mobileNo)
         {
-            var tickets = await _context.Tickets
+            var redeemedTickets = await _context.Tickets
                 .Include(t => t.BusRoute)
-                .Where(t => t.MobileNo == mobileNo)
+                .Where(t => t.MobileNo == mobileNo && t.IsActive == true && t.IsRedeemed == true)
                 .Select(t => new TicketResponseDTO
                 {
                     TicketID = t.TicketID,
@@ -120,6 +120,61 @@ namespace BusManagementAPI.Controllers
                     RedeemedDate = t.RedeemedDate
                 })
                 .ToListAsync();
+
+            var activeTickets = await _context.Tickets
+                .Include(t => t.BusRoute)
+                .Where(t => t.MobileNo == mobileNo && t.IsActive == true && t.IsCancelled == false && t.IsRedeemed == false)
+                .Select(t => new TicketResponseDTO
+                {
+                    TicketID = t.TicketID,
+                    BookingRefId = t.BookingRefID,
+                    RouteCode = t.BusRoute.RouteCode,
+                    FromStage = t.FromStage,
+                    ToStage = t.ToStage,
+                    BusType = t.BusType,
+                    StagesTravelled = t.StagesTravelled,
+                    Fare = t.BaseFare,
+                    Passengers = t.Passengers,
+                    TotalFare = t.TotalFare,
+                    UserName = t.UserName,
+                    MobileNo = t.MobileNo,
+                    Email = t.Email,
+                    IsActive = t.IsActive,
+                    IsRedeemed = t.IsRedeemed,
+                    BookingDate = t.BookingDate,
+                    RedeemedDate = t.RedeemedDate
+                })
+                .ToListAsync();
+
+            var cancelledTickets = await _context.Tickets
+                .Include(t => t.BusRoute)
+                .Where(t => t.MobileNo == mobileNo && t.IsCancelled == true)
+                .Select(t => new TicketResponseDTO
+                {
+                    TicketID = t.TicketID,
+                    BookingRefId = t.BookingRefID,
+                    RouteCode = t.BusRoute.RouteCode,
+                    FromStage = t.FromStage,
+                    ToStage = t.ToStage,
+                    BusType = t.BusType,
+                    StagesTravelled = t.StagesTravelled,
+                    Fare = t.BaseFare,
+                    Passengers = t.Passengers,
+                    TotalFare = t.TotalFare,
+                    UserName = t.UserName,
+                    MobileNo = t.MobileNo,
+                    Email = t.Email,
+                    IsActive = t.IsActive,
+                    IsRedeemed = t.IsRedeemed,
+                    BookingDate = t.BookingDate,
+                    RedeemedDate = t.RedeemedDate
+                })
+                .ToListAsync();
+
+            var tickets = redeemedTickets
+                          .Concat(activeTickets)
+                          .Concat(cancelledTickets)
+                          .ToList();
 
             if (!tickets.Any())
             {
