@@ -79,8 +79,10 @@ namespace BusManagementAPI.Controllers
                     Email = t.Email,
                     IsActive = t.IsActive,
                     IsRedeemed = t.IsRedeemed,
+                    IsCancelled = t.IsCancelled,
                     BookingDate = t.BookingDate,
-                    RedeemedDate = t.RedeemedDate
+                    RedeemedDate = t.RedeemedDate,
+                    Status = t.IsRedeemed == true ? "Redeemed" : (t.IsCancelled ? "Cancelled" : "Active")
                 })
                 .FirstOrDefaultAsync();
 
