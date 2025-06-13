@@ -94,7 +94,7 @@ namespace BusManagementAPI.Controllers
 
         //GET: api/Tickets/mobile/{mobileNo}
         [HttpGet("/GetTicketByMobileNo/{mobileNo}")]
-        public async Task<ActionResult<IEnumerable<TicketResponseDTO>>> GetTicketsByMobile(string mobileNo)
+        public async Task<ActionResult<GroupedTicketsResponseDTO>> GetTicketsByMobile(string mobileNo)
         {
             var redeemedTickets = await _context.Tickets
                 .Include(t => t.BusRoute)
@@ -171,17 +171,17 @@ namespace BusManagementAPI.Controllers
                 })
                 .ToListAsync();
 
-            var tickets = redeemedTickets
-                          .Concat(activeTickets)
-                          .Concat(cancelledTickets)
-                          .ToList();
+            GroupedTicketsResponseDTO finalRes = new GroupedTicketsResponseDTO();
+            finalRes.Active = activeTickets;
+            finalRes.Redeemed = redeemedTickets;
+            finalRes.Cancelled = cancelledTickets;
 
-            if (!tickets.Any())
-            {
-                return NotFound("No tickets found for this mobile number.");
-            }
+            //if (!finalRes.Any())
+            //{
+            //    return NotFound("No tickets found for this mobile number.");
+            //}
 
-            return Ok(tickets);
+            return Ok(finalRes);
         }
 
         // POST: api/Tickets - Purchase a new ticket
@@ -323,9 +323,9 @@ namespace BusManagementAPI.Controllers
 
         // PUT: api/Tickets/{id}/cancel - Cancel a ticket
         [HttpPut("/CancelTicket/{id}")]
-        public async Task<IActionResult> CancelTicket(Guid id)
+        public async Task<IActionResult> CancelTicket(string id)
         {
-            var ticket = await _context.Tickets.FindAsync(id);
+            var ticket = await _context.Tickets.Where(x => x.BookingRefID == id).FirstOrDefaultAsync();
             if (ticket == null)
             {
                 return NotFound();
