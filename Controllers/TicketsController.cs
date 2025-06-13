@@ -118,7 +118,8 @@ namespace BusManagementAPI.Controllers
                     IsRedeemed = t.IsRedeemed,
                     IsCancelled = t.IsCancelled,
                     BookingDate = t.BookingDate,
-                    RedeemedDate = t.RedeemedDate
+                    RedeemedDate = t.RedeemedDate,
+                    Status = "Redeemed"
                 })
                 .ToListAsync();
 
@@ -144,7 +145,8 @@ namespace BusManagementAPI.Controllers
                     IsRedeemed = t.IsRedeemed,
                     IsCancelled = t.IsCancelled,
                     BookingDate = t.BookingDate,
-                    RedeemedDate = t.RedeemedDate
+                    RedeemedDate = t.RedeemedDate,
+                    Status = "Active"
                 })
                 .ToListAsync();
 
@@ -170,7 +172,8 @@ namespace BusManagementAPI.Controllers
                     IsRedeemed = t.IsRedeemed,
                     IsCancelled = t.IsCancelled,
                     BookingDate = t.BookingDate,
-                    RedeemedDate = t.RedeemedDate
+                    RedeemedDate = t.RedeemedDate,
+                    Status = "Cancelled"
                 })
                 .ToListAsync();
 
