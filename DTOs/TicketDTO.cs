@@ -21,6 +21,13 @@
         public DateTime? RedeemedDate { get; set; }
     }
 
+    public class GroupedTicketsResponseDTO
+    {
+        public List<TicketResponseDTO> Redeemed { get; set; } = new();
+        public List<TicketResponseDTO> Active { get; set; } = new();
+        public List<TicketResponseDTO> Cancelled { get; set; } = new();
+    }
+
     public class TicketRequestDTO
     {
         public string RouteCode { get; set; }
