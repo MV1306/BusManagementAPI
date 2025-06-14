@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using MimeKit;
 using System.Threading.Tasks;
 using BusManagementAPI.Models;
+using System.Text.Json;
 
 namespace BusManagementAPI.Services
 {
@@ -49,6 +50,29 @@ namespace BusManagementAPI.Services
         {
             // Simple HTML stripping for AltBody. For more complex HTML, consider a dedicated library or regex.
             return System.Text.RegularExpressions.Regex.Replace(html, "<.*?>", string.Empty);
+        }
+
+        public string shortURLGeneration(string URL)
+        {
+            using var client = new HttpClient();
+            var content = new FormUrlEncodedContent(new[]
+            {
+            new KeyValuePair<string, string>("url", URL)
+        });
+
+            var response = client.PostAsync("https://cleanuri.com/api/v1/shorten", content).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                var resultJson = response.Content.ReadAsStringAsync().Result;
+                using var doc = JsonDocument.Parse(resultJson);
+                var shortUrl = doc.RootElement.GetProperty("result_url").GetString();
+                return shortUrl;
+            }
+            else
+            {
+                return "Error: Unable to shorten URL";
+            }
         }
     }
 }
