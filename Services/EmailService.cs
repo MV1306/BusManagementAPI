@@ -5,16 +5,20 @@ using MimeKit;
 using System.Threading.Tasks;
 using BusManagementAPI.Models;
 using System.Text.Json;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace BusManagementAPI.Services
 {
     public class EmailService : IEmailService
     {
         private readonly EmailSettings _emailSettings;
+        private readonly IConfiguration _configuration;
 
-        public EmailService(IOptions<EmailSettings> emailSettings)
+        public EmailService(IOptions<EmailSettings> emailSettings, IConfiguration configuration)
         {
             _emailSettings = emailSettings.Value;
+            _configuration = configuration;
         }
 
         public async Task SendEmailAsync(string toEmail, string subject, string body)
@@ -35,9 +39,12 @@ namespace BusManagementAPI.Services
             using var smtp = new SmtpClient();
             try
             {
-                // Corrected: changed SecureSocketOptionsKit to SecureSocketOptions
+                string key = _configuration["AppSettings:AESKEY"];
+                string iv = _configuration["AppSettings:AESIV"];
+
+                string encPassword = Decrypt(_emailSettings.SmtpPassword, key, iv);
                 await smtp.ConnectAsync(_emailSettings.SmtpHost, _emailSettings.SmtpPort, SecureSocketOptions.SslOnConnect); // Or .StartTls for port 587
-                await smtp.AuthenticateAsync(_emailSettings.SmtpUsername, _emailSettings.SmtpPassword);
+                await smtp.AuthenticateAsync(_emailSettings.SmtpUsername, encPassword);
                 await smtp.SendAsync(email);
             }
             finally
@@ -50,6 +57,29 @@ namespace BusManagementAPI.Services
         {
             // Simple HTML stripping for AltBody. For more complex HTML, consider a dedicated library or regex.
             return System.Text.RegularExpressions.Regex.Replace(html, "<.*?>", string.Empty);
+        }
+
+        private static string Decrypt(string encryptedBase64, string key, string iv)
+        {
+            byte[] cipherBytes = Convert.FromBase64String(encryptedBase64);
+            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+            byte[] ivBytes = Encoding.UTF8.GetBytes(iv);
+
+            using (Aes aesAlg = Aes.Create())
+            {
+                aesAlg.Key = keyBytes;
+                aesAlg.IV = ivBytes;
+                aesAlg.Mode = CipherMode.CBC;
+                aesAlg.Padding = PaddingMode.PKCS7;
+
+                using (ICryptoTransform decryptor = aesAlg.CreateDecryptor())
+                using (MemoryStream msDecrypt = new MemoryStream(cipherBytes))
+                using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                {
+                    return srDecrypt.ReadToEnd();
+                }
+            }
         }
 
         public string shortURLGeneration(string URL)
