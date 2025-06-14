@@ -4,6 +4,10 @@ using BusManagementAPI.Models;
 using BusManagementAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml.Interfaces.SensitivityLabels;
+using Org.BouncyCastle.Asn1.Cmp;
+using Org.BouncyCastle.Asn1.Crmf;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,13 +22,15 @@ namespace BusManagementAPI.Controllers
     {
         private readonly BusDbContext _context;
         private readonly IEmailService _emailService;
+        private readonly IConfiguration _configuration;
         private static readonly char[] chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
         private static readonly Random random = new Random();
 
-        public TicketsController(BusDbContext context, IEmailService emailService)
+        public TicketsController(BusDbContext context, IEmailService emailService, IConfiguration configuration)
         {
             _context = context;
             _emailService = emailService;
+            _configuration = configuration;
         }
 
         // GET: api/Tickets - Get all tickets
@@ -241,6 +247,9 @@ namespace BusManagementAPI.Controllers
 
             if (!string.IsNullOrEmpty(ticketDto.Email))
             {
+                string baseUrl = _configuration["AppSettings:frontendURL"];
+                string ticketDetailURL = baseUrl+ "/TicketDetails.php?id=" + ticket.TicketID;
+                string ticketDetailShortURL = _emailService.shortURLGeneration(ticketDetailURL);
                 var subject = $"Booking ID: {ticket.BookingRefID} - Bus Ticket Booking Confirmation";
                 var emailBody = $@"
                         <!DOCTYPE html>
@@ -282,6 +291,8 @@ namespace BusManagementAPI.Controllers
 
                                     <p class='fare-total'>Total Paid: ₹{ticket.TotalFare:F2}</p>
 
+                                    <p class='content'>For more details, click <a href={ticketDetailShortURL}>Link</a></p>
+
                                     <p>Please keep this email for your reference. We wish you a pleasant journey!</p>
                                     <p>Sincerely,<br>The Bus Booking Team</p>
                                 </div>
@@ -293,6 +304,29 @@ namespace BusManagementAPI.Controllers
                         </html>";
 
                 await _emailService.SendEmailAsync(ticketDto.Email, subject, emailBody);
+
+                //var options = new RestClientOptions("https://d9g4yg.api.infobip.com")
+                //{
+                //    MaxTimeout = -1,
+                //};
+                //var client = new RestClient(options);
+                //var request = new RestRequest("/sms/2/text/advanced", Method.Post);
+                //request.AddHeader("Authorization", "App 4d606ec5ce55646d91c56278acd6fbfc-286a0602-788a-4f67-8f7a-cdacd0d3ee9f");
+                //request.AddHeader("Content-Type", "application/json");
+                //request.AddHeader("Accept", "application/json");
+                //var body = $@"{{
+                //  ""messages"": [
+                //    {{
+                //      ""destinations"": [{{ ""to"": ""91{ticketDto.MobileNo}"" }}],
+                //      ""from"": ""ServiceSMS"",
+                //      ""text"": ""Dear {ticket.UserName} your ticket has been booked successfully. Ref ID - {ticket.BookingRefID}. For more details, click the link. http://mtcchennaibus.infinityfreeapp.com/TicketDetails.php?id={ticket.TicketID}""
+                //    }}
+                //  ]
+                //}}";
+
+                //request.AddStringBody(body, DataFormat.Json);
+                //RestResponse response = await client.ExecuteAsync(request);
+                //Console.WriteLine(response.Content);
             }
             return Ok("Booking Successful. Booking Reference ID - " + ticket.BookingRefID);
         }
