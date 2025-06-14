@@ -1,4 +1,5 @@
-﻿using BusManagementAPI.Data;
+﻿using QRCoder;
+using BusManagementAPI.Data;
 using BusManagementAPI.DTOs;
 using BusManagementAPI.Models;
 using BusManagementAPI.Services;
@@ -13,6 +14,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+
 
 namespace BusManagementAPI.Controllers
 {
@@ -250,6 +255,7 @@ namespace BusManagementAPI.Controllers
                 string baseUrl = _configuration["AppSettings:frontendURL"];
                 string ticketDetailURL = baseUrl+ "/TicketDetails.php?id=" + ticket.TicketID;
                 string ticketDetailShortURL = _emailService.shortURLGeneration(ticketDetailURL);
+                var qrImageBytes = GenerateQrCodeImageBytes(ticket.BookingRefID);
                 var subject = $"Booking ID: {ticket.BookingRefID} - Bus Ticket Booking Confirmation";
                 var emailBody = $@"
                         <!DOCTYPE html>
@@ -293,6 +299,8 @@ namespace BusManagementAPI.Controllers
 
                                     <p class='content'>For more details, click <a href={ticketDetailShortURL}>Link</a></p>
 
+                                    <img src='cid:QrCodeImage' alt='QR Code' style='display:block;margin:20px auto;max-width:200px;' />
+
                                     <p>Please keep this email for your reference. We wish you a pleasant journey!</p>
                                     <p>Sincerely,<br>The Bus Booking Team</p>
                                 </div>
@@ -303,7 +311,7 @@ namespace BusManagementAPI.Controllers
                         </body>
                         </html>";
 
-                await _emailService.SendEmailAsync(ticketDto.Email, subject, emailBody);
+                await _emailService.SendEmailAsync(ticketDto.Email, subject, emailBody, qrImageBytes);
 
                 //var options = new RestClientOptions("https://d9g4yg.api.infobip.com")
                 //{
@@ -411,5 +419,18 @@ namespace BusManagementAPI.Controllers
             }
             return sb.ToString();
         }
+
+
+        public static byte[] GenerateQrCodeImageBytes(string bookingRefId)
+        {
+            var qrGenerator = new QRCodeGenerator();
+            var qrCodeData = qrGenerator.CreateQrCode(bookingRefId, QRCodeGenerator.ECCLevel.Q);
+
+            var qrCode = new PngByteQRCode(qrCodeData);
+            byte[] qrCodeBytes = qrCode.GetGraphic(20);
+
+            return qrCodeBytes;
+        }
+
     }
 }

@@ -21,7 +21,7 @@ namespace BusManagementAPI.Services
             _configuration = configuration;
         }
 
-        public async Task SendEmailAsync(string toEmail, string subject, string body)
+        public async Task SendEmailAsync(string toEmail, string subject, string body, byte[] qrImageBytes = null)
         {
             var email = new MimeMessage();
             email.Sender = MailboxAddress.Parse(_emailSettings.FromEmail);
@@ -34,6 +34,17 @@ namespace BusManagementAPI.Services
                 HtmlBody = body,
                 TextBody = StripHtml(body) // For plain text fallback
             };
+
+            if (qrImageBytes != null)
+            {
+                var image = builder.LinkedResources.Add("qrcode.png", qrImageBytes);
+                image.ContentId = "QrCodeImage";
+                image.ContentType.MediaType = "image";
+                image.ContentType.MediaSubtype = "png";
+                image.ContentDisposition = new ContentDisposition(ContentDisposition.Inline);
+                //image.ContentTransferEncoding = ContentEncoding.Base64;
+            }
+
             email.Body = builder.ToMessageBody();
 
             using var smtp = new SmtpClient();
