@@ -257,59 +257,193 @@ namespace BusManagementAPI.Controllers
                 string ticketDetailShortURL = _emailService.shortURLGeneration(ticketDetailURL);
                 var qrImageBytes = GenerateQrCodeImageBytes(ticket.BookingRefID);
                 var subject = $"Booking ID: {ticket.BookingRefID} - Bus Ticket Booking Confirmation";
+                //var emailBody = $@"
+                //        <!DOCTYPE html>
+                //        <html lang='en'>
+                //        <head>
+                //            <meta charset='UTF-8'>
+                //            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                //            <title>Bus Ticket Confirmation</title>
+                //            <style>
+                //                body {{ font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; }}
+                //                .container {{ max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }}
+                //                .header {{ background-color: #4361ee; color: white; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; }}
+                //                .content {{ padding: 20px 0; }}
+                //                .footer {{ margin-top: 20px; font-size: 0.9em; color: #777; text-align: center; border-top: 1px solid #eee; padding-top: 10px; }}
+                //                .detail-row {{ display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #eee; }}
+                //                .detail-row:last-child {{ border-bottom: none; }}
+                //                strong {{ color: #000; }}
+                //                .fare-total {{ font-size: 1.2em; font-weight: bold; text-align: right; margin-top: 15px; padding-top: 10px; border-top: 2px solid #4361ee; }}
+                //            </style>
+                //        </head>
+                //        <body>
+                //            <div class='container'>
+                //                <div class='header'>
+                //                    <h2>Bus Ticket Booking Confirmation</h2>
+                //                </div>
+                //                <div class='content'>
+                //                    <p>Dear {ticketDto.UserName ?? "Passenger"},</p>
+                //                    <p>Your bus ticket booking has been successfully confirmed!</p>
+                //                    <p>Here are your booking details:</p>
+                //                    <div class='detail-row'><span>Booking Reference ID:</span> <strong>{ticket.BookingRefID}</strong></div>
+                //                    <div class='detail-row'><span>Route:</span> <strong>{ticketDto.RouteCode}</strong></div>
+                //                    <div class='detail-row'><span>From:</span> <strong>{ticketDto.FromStage}</strong></div>
+                //                    <div class='detail-row'><span>To:</span> <strong>{ticketDto.ToStage}</strong></div>
+                //                    <div class='detail-row'><span>Bus Type:</span> <strong>{ticketDto.BusType}</strong></div>
+                //                    <div class='detail-row'><span>Number of Passengers:</span> <strong>{ticketDto.Passengers}</strong></div>
+                //                    <div class='detail-row'><span>Passenger Name:</span> <strong>{ticketDto.UserName}</strong></div>
+                //                    <div class='detail-row'><span>Mobile Number:</span> <strong>{ticketDto.MobileNo}</strong></div>
+                //                    {(!string.IsNullOrEmpty(ticketDto.Email) ? $"<div class='detail-row'><span>Email Address:</span> <strong>{ticketDto.Email}</strong></div>" : "")}
+
+                //                    <p class='fare-total'>Total Paid: ₹{ticket.TotalFare:F2}</p>
+
+                //                    <p class='content'>For more details, click <a href={ticketDetailShortURL}>Link</a></p>
+
+                //                    <img src='cid:QrCodeImage' alt='QR Code' style='display:block;margin:20px auto;max-width:200px;' />
+
+                //                    <p>Please keep this email for your reference. We wish you a pleasant journey!</p>
+                //                    <p>Sincerely,<br>The Bus Booking Team</p>
+                //                </div>
+                //                <div class='footer'>
+                //                    This is an automated email, please do not reply.
+                //                </div>
+                //            </div>
+                //        </body>
+                //        </html>";
+
+                /*CHATGPT*/
                 var emailBody = $@"
-                        <!DOCTYPE html>
-                        <html lang='en'>
-                        <head>
-                            <meta charset='UTF-8'>
-                            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-                            <title>Bus Ticket Confirmation</title>
-                            <style>
-                                body {{ font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; }}
-                                .container {{ max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }}
-                                .header {{ background-color: #4361ee; color: white; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; }}
-                                .content {{ padding: 20px 0; }}
-                                .footer {{ margin-top: 20px; font-size: 0.9em; color: #777; text-align: center; border-top: 1px solid #eee; padding-top: 10px; }}
-                                .detail-row {{ display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #eee; }}
-                                .detail-row:last-child {{ border-bottom: none; }}
-                                strong {{ color: #000; }}
-                                .fare-total {{ font-size: 1.2em; font-weight: bold; text-align: right; margin-top: 15px; padding-top: 10px; border-top: 2px solid #4361ee; }}
-                            </style>
-                        </head>
-                        <body>
-                            <div class='container'>
-                                <div class='header'>
-                                    <h2>Bus Ticket Booking Confirmation</h2>
-                                </div>
-                                <div class='content'>
-                                    <p>Dear {ticketDto.UserName ?? "Passenger"},</p>
-                                    <p>Your bus ticket booking has been successfully confirmed!</p>
-                                    <p>Here are your booking details:</p>
-                                    <div class='detail-row'><span>Booking Reference ID:</span> <strong>{ticket.BookingRefID}</strong></div>
-                                    <div class='detail-row'><span>Route:</span> <strong>{ticketDto.RouteCode}</strong></div>
-                                    <div class='detail-row'><span>From:</span> <strong>{ticketDto.FromStage}</strong></div>
-                                    <div class='detail-row'><span>To:</span> <strong>{ticketDto.ToStage}</strong></div>
-                                    <div class='detail-row'><span>Bus Type:</span> <strong>{ticketDto.BusType}</strong></div>
-                                    <div class='detail-row'><span>Number of Passengers:</span> <strong>{ticketDto.Passengers}</strong></div>
-                                    <div class='detail-row'><span>Passenger Name:</span> <strong>{ticketDto.UserName}</strong></div>
-                                    <div class='detail-row'><span>Mobile Number:</span> <strong>{ticketDto.MobileNo}</strong></div>
-                                    {(!string.IsNullOrEmpty(ticketDto.Email) ? $"<div class='detail-row'><span>Email Address:</span> <strong>{ticketDto.Email}</strong></div>" : "")}
+                <!DOCTYPE html>
+                <html lang='en'>
+                <head>
+                    <meta charset='UTF-8'>
+                    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                    <title>Ticket Confirmation</title>
+                    <style>
+                        body {{
+                            font-family: 'Segoe UI', sans-serif;
+                            background-color: #f4f6f8;
+                            margin: 0;
+                            padding: 20px;
+                            color: #333;
+                        }}
+                        .email-container {{
+                            max-width: 600px;
+                            margin: auto;
+                            background-color: #ffffff;
+                            border-radius: 10px;
+                            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                            overflow: hidden;
+                        }}
+                        .header {{
+                            background-color: #1976d2;
+                            color: #fff;
+                            padding: 25px 20px;
+                            text-align: center;
+                        }}
+                        .header h1 {{
+                            margin: 0;
+                            font-size: 24px;
+                        }}
+                        .content {{
+                            padding: 25px 20px;
+                        }}
+                        .content p {{
+                            margin: 10px 0;
+                        }}
+                        .details {{
+                            margin: 20px 0;
+                            border-collapse: collapse;
+                            width: 100%;
+                        }}
+                        .details td {{
+                            padding: 8px 0;
+                            border-bottom: 1px solid #eee;
+                        }}
+                        .details td:first-child {{
+                            color: #555;
+                            width: 50%;
+                        }}
+                        .total {{
+                            margin-top: 20px;
+                            font-size: 18px;
+                            font-weight: bold;
+                            text-align: right;
+                            color: #1976d2;
+                        }}
+                        .qr-code {{
+                            text-align: center;
+                            margin-top: 30px;
+                        }}
+                        .qr-code img {{
+                            max-width: 180px;
+                            border: 1px solid #ccc;
+                            border-radius: 8px;
+                            padding: 10px;
+                            background: #fafafa;
+                        }}
+                        .footer {{
+                            font-size: 12px;
+                            text-align: center;
+                            color: #999;
+                            padding: 15px 10px;
+                            background: #f9f9f9;
+                        }}
+                        a.button {{
+                            display: inline-block;
+                            margin-top: 15px;
+                            padding: 10px 20px;
+                            background-color: #1976d2;
+                            color: #fff;
+                            text-decoration: none;
+                            border-radius: 5px;
+                        }}
+                    </style>
+                </head>
+                <body>
+                    <div class='email-container'>
+                        <div class='header'>
+                            <h1>Bus Ticket Confirmation</h1>
+                        </div>
+                        <div class='content'>
+                            <p>Hello {ticketDto.UserName ?? "Passenger"},</p>
+                            <p>We're pleased to confirm your bus ticket booking!</p>
 
-                                    <p class='fare-total'>Total Paid: ₹{ticket.TotalFare:F2}</p>
+                            <table class='details'>
+                                <tr><td>Booking Ref ID:</td><td><strong>{ticket.BookingRefID}</strong></td></tr>
+                                <tr><td>Route:</td><td><strong>{ticketDto.RouteCode}</strong></td></tr>
+                                <tr><td>From:</td><td><strong>{ticketDto.FromStage}</strong></td></tr>
+                                <tr><td>To:</td><td><strong>{ticketDto.ToStage}</strong></td></tr>
+                                <tr><td>Bus Type:</td><td><strong>{ticketDto.BusType}</strong></td></tr>
+                                <tr><td>Passengers:</td><td><strong>{ticketDto.Passengers}</strong></td></tr>
+                                <tr><td>Passenger Name:</td><td><strong>{ticketDto.UserName}</strong></td></tr>
+                                <tr><td>Mobile No:</td><td><strong>{ticketDto.MobileNo}</strong></td></tr>
+                                {(string.IsNullOrEmpty(ticketDto.Email) ? "" : $"<tr><td>Email:</td><td><strong>{ticketDto.Email}</strong></td></tr>")}
+                            </table>
 
-                                    <p class='content'>For more details, click <a href={ticketDetailShortURL}>Link</a></p>
-
-                                    <img src='cid:QrCodeImage' alt='QR Code' style='display:block;margin:20px auto;max-width:200px;' />
-
-                                    <p>Please keep this email for your reference. We wish you a pleasant journey!</p>
-                                    <p>Sincerely,<br>The Bus Booking Team</p>
-                                </div>
-                                <div class='footer'>
-                                    This is an automated email, please do not reply.
-                                </div>
+                            <div class='total'>
+                                Total Paid: ₹{ticket.TotalFare:F2}
                             </div>
-                        </body>
-                        </html>";
+
+                            <div style='text-align:center;'>
+                                <a href='{ticketDetailShortURL}' class='button'>View Ticket Details</a>
+                            </div>
+
+                            <div class='qr-code'>
+                                <p>Scan QR Code at boarding:</p>
+                                <img src='cid:QrCodeImage' alt='QR Code' />
+                            </div>
+
+                            <p style='margin-top:30px;'>Thank you for booking with us. Have a safe journey!</p>
+                            <p>— Bus Booking Team</p>
+                        </div>
+                        <div class='footer'>
+                            This is an automated email. Please do not reply.
+                        </div>
+                    </div>
+                </body>
+                </html>";
+
 
                 await _emailService.SendEmailAsync(ticketDto.Email, subject, emailBody, qrImageBytes);
 
